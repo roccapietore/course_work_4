@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from random import uniform
-from typing import List, Optional
+from typing import List
 
 
 @dataclass
@@ -41,8 +41,10 @@ class EquipmentData:
                 return armor
         raise NameError
 
-    def get_weapon_names(self) -> Optional[List]:
+    @property
+    def get_weapon_names(self) -> List[str]:
         return list(item.name for item in self.weapons)
 
-    def get_armor_names(self) -> Optional[List]:
+    @property
+    def get_armor_names(self) -> List[str]:
         return list(item.name for item in self.armors)

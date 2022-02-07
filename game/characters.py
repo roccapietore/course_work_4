@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Dict, Type
 from game.skills import Skill, ferocious_kick, powerful_thrust
 
 
@@ -23,7 +24,7 @@ class Warrior(Character):
 
 
 class Thief(Character):
-    name: str = "Воин"
+    name: str = "Вор"
     max_health: float = 50.0
     max_stamina: float = 25.0
     attack: float = 1.5
@@ -31,4 +32,9 @@ class Thief(Character):
     armor: float = 1.0
     skill: Skill = powerful_thrust
 
+
+heroes: Dict[str, Type[Character]] = {
+    Warrior.name: Warrior,
+    Thief.name: Thief
+}
 
