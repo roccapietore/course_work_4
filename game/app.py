@@ -5,12 +5,26 @@ from game.characters import characters, Character
 from game.equipment import EquipmentData
 from game.functions import load_equipment
 from game.hero import Player, Enemy, Hero
+from game.controller import Game
+from functools import wraps
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 EQUIPMENT: EquipmentData = load_equipment()
 
 heroes: Dict[str, Hero] = {}
+game = Game()
+
+
+def game_processing(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if game.game_processing:
+            return func
+        if game.game_results:
+            return render_template('fight.html', heroes=heroes, result=game.game_results)
+        return redirect(url_for("index"))
+    return wrapper
 
 
 @app.route('/')
@@ -55,8 +69,31 @@ def choose_enemy():
 @app.route('/fight')
 def fight():
     if "player" in heroes and "enemy" in heroes:
+        game.run(**heroes)
         return render_template('fight.html', heroes=heroes, result="Бой начался!")
     return redirect(url_for("index"))
+
+
+@app.route('/fight/hit')
+@game_processing
+def hit():
+    return render_template('fight.html', heroes=heroes, result=game.player_hit())
+
+@app.route('/fight/use-skill')
+@game_processing
+def use_skill():
+    return render_template('fight.html', heroes=heroes, result=game.use_skill())
+
+@app.route('/fight/pass-turn')
+@game_processing
+def pass_turn():
+    return render_template('fight.html', heroes=heroes, result=game.next_turn())
+
+
+@app.route('/fight/end-fight')
+def end_fight():
+    return redirect(url_for("index"))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
