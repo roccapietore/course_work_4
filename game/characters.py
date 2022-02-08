@@ -33,8 +33,8 @@ class Thief(Character):
     skill: Skill = powerful_thrust
 
 
-heroes: Dict[str, Type[Character]] = {
+characters: Dict[str, Type[Character]] = {
     Warrior.name: Warrior,
-    Thief.name: Thief
+    Thief.name: Thief,
 }
 

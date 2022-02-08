@@ -31,15 +31,17 @@ class EquipmentData:
 
     def get_weapon(self, weapon_name: str) -> Weapon:
         for weapon in self.weapons:
-            if weapon == weapon_name:
+            if weapon.name == weapon_name:
                 return weapon
-        raise NameError
+            else:
+                raise NameError
 
     def get_armor(self, armor_name: str) -> Armor:
         for armor in self.armors:
-            if armor == armor_name:
+            if armor.name  == armor_name:
                 return armor
-        raise NameError
+            else:
+                raise NameError
 
     @property
     def get_weapon_names(self) -> List[str]:
