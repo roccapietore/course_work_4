@@ -17,7 +17,7 @@ class Game(metaclass=SingletonMeta):
         self.player = None
         self.enemy = None
         self.game_processing = False
-        self.game_results = " "
+        self.game_results = ""
 
     def run(self, player: Hero, enemy: Hero):
         self.player = player
@@ -68,7 +68,7 @@ class Game(metaclass=SingletonMeta):
             self.enemy.take_hit(total_damage)
             return (f"{self.player.name} наносит {total_damage} урона сопернику."
                     f"{self.next_turn()}")
-        return (f"<p>{self.player.name} попытался использовать {self.player.weapon.name}, "
+        return (f"{self.player.name} попытался использовать {self.player.weapon.name}, "
                 f"но у него не хватило выносливости."
                 f"{self.next_turn()}")
 
@@ -79,8 +79,7 @@ class Game(metaclass=SingletonMeta):
             return (f"{self.player.name} наносит {total_damage} урона сопернику."
                     f"{self.next_turn()}")
         return (f"{self.player.name} попытался использовать навык, "
-                    f"но у него не хватило выносливости."
-                    f"{self.next_turn()}")
+                    f"но у него не хватило выносливости. {self.next_turn()}")
 
 
 

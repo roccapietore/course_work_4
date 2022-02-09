@@ -41,10 +41,4 @@ class EquipmentData:
                 return armor
         raise NameError
 
-    @property
-    def get_weapon_names(self) -> List[str]:
-        return list(item.name for item in self.weapons)
 
-    @property
-    def get_armor_names(self) -> List[str]:
-        return list(item.name for item in self.armors)

@@ -15,18 +15,6 @@ EQUIPMENT: EquipmentData = load_equipment()
 heroes: Dict[str, Hero] = {}
 game = Game()
 
-
-def game_processing(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        if game.game_processing:
-            return func
-        if game.game_results:
-            return render_template('fight.html', heroes=heroes, result=game.game_results)
-        return redirect(url_for("index"))
-    return wrapper
-
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -62,7 +50,7 @@ def choose_enemy():
                               weapon=EQUIPMENT.get_weapon(request.form["weapon"]),
                               armor=EQUIPMENT.get_armor(request.form["armor"]),
                               name=request.form["name"])
-    print(request.form["weapon"])
+
     return redirect(url_for("fight"))
 
 
@@ -75,24 +63,34 @@ def fight():
 
 
 @app.route('/fight/hit')
-@game_processing
 def hit():
-    return render_template('fight.html', heroes=heroes, result=game.player_hit())
+    if game.game_processing:
+        return render_template('fight.html', heroes=heroes, result=game.player_hit())
+    if game.game_results:
+        return render_template('fight.html', heroes=heroes, result=game.game_results)
+    return redirect(url_for("index"))
 
 @app.route('/fight/use-skill')
-@game_processing
 def use_skill():
-    return render_template('fight.html', heroes=heroes, result=game.use_skill())
+    if game.game_processing:
+        return render_template('fight.html', heroes=heroes, result=game.use_skill())
+    if game.game_results:
+        return render_template('fight.html', heroes=heroes, result=game.game_results)
+    return redirect(url_for("index"))
 
 @app.route('/fight/pass-turn')
-@game_processing
 def pass_turn():
-    return render_template('fight.html', heroes=heroes, result=game.next_turn())
+    if game.game_processing:
+        return render_template('fight.html', heroes=heroes, result=game.next_turn())
+    if game.game_results:
+        return render_template('fight.html', heroes=heroes, result=game.game_results)
+    return redirect(url_for("index"))
 
 
 @app.route('/fight/end-fight')
 def end_fight():
-    return redirect(url_for("index"))
+    if game.game_processing:
+        return redirect(url_for("index"))
 
 
 if __name__ == '__main__':
