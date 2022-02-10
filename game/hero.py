@@ -18,33 +18,47 @@ class Hero(ABC):
         self.armor = armor
         self.used_skill: bool = False
 
-    @property                              # округление очков здоровья
+    @property
     def hp(self):
+        """
+        Округление очков здоровья
+        """
         return round(self._hp, 1)
 
     @hp.setter
     def hp(self, value):
         self._hp = value
 
-    @property                                   # округление очков выносливости
+    @property
     def stamina(self):
+        """
+        Округление очков выносливости
+        """
         return round(self._stamina, 1)
 
     @stamina.setter
     def stamina(self, value):
         self._stamina = value
 
-    @property                                     # расчет брони цели
+    @property
     def total_armor(self) -> float:
+        """
+        Расчет брони цели (= броня игрока * модификатор брони класса ). Если выносливости достаточно для использования
+        брони, возвращаем значение брони, если нет - возвращаем 0.
+        """
         if self.stamina - self.armor.stamina_per_turn >= 0:
             return self.armor.defence * self.player_class.armor
         return 0
 
     def _hit(self, target: Hero) -> Optional[float]:
-        # ф-я расчета урона атакующего(=урон от оружия * модификатор атаки класса)
-        # и общего урона(=урона атакующего - броня цели), а также проверка достаточного кол-ва очков
-        # выносливости для удара. Если выносливости не достаточно, возвращаем 0 урона
-
+        """
+        Метод нанесения удара.
+        Если выносливости для удара недостаточно, возвращаем 0 урона.
+        Если выносливости достаточно, то рассчитывается урон атакующего(=урон от оружия * модификатор атаки класса),
+        а затем общий урон(=урона атакующего - броня цели). Если общий урон меньше 0, возвращаем 0.
+        Вычитаем из очков выносливости кол-во выносливости, которое игрок затратил на удар, и возвращаем значение
+        общего урона.
+        """
         if self.stamina - self.weapon.stamina_per_hit < 0:
             return None
         hero_damage = self.weapon.damage * self.player_class.attack
@@ -55,28 +69,31 @@ class Hero(ABC):
         return round(total_damage, 1)
 
     def take_hit(self, damage: float):
-        # вычет урона из очков здоровья (ф-я позволяет очкам здоровья быть отрицательным числом)
-
+        """
+        Метод для вычета урона из очков здоровья (метод не позволяет очкам здоровья быть отрицательным числом)
+        """
         self.hp = round(self.hp, 1)
         self.hp -= damage
         if self.hp < 0:
             self.hp = 0
 
     def use_skill(self) -> Optional[float]:
-        # ф-я для использования навыка
-        # если у атакующего достаточно выносливости и навык не был использован ранее,
-        # возвращаем урон от навыка. Если выносливости нет, ничего не возвращаем.
-
+        """
+        Метод для использования навыка.
+        Если у атакующего достаточно выносливости и навык не был использован ранее, возвращаем урон от навыка.
+        Если выносливости нет, ничего не возвращаем.
+        """
         if self.stamina - self.player_class.skill.stamina and not self.used_skill:
             self.used_skill = True
             return round(self.player_class.skill.damage, 1)
         return None
 
     def regenerate_stamina(self):
-        # ф-я для регенерации выносливости с использованием константы.
-        # если очки выносливости имеют максимальное значение, возвращаем максимальное кол-во выносливости.
-        # если нет, высчитываем выносливость с помощью константы
-
+        """
+        Метод для регенерации выносливости с использованием константы.
+        Если очки выносливости имеют максимальное значение, возвращаем максимальное кол-во выносливости.
+        Если нет, высчитываем выносливость с помощью константы.
+        """
         delta_stamina = base_stamina_per_round * self.player_class.stamina
         if self.stamina + delta_stamina <= self.player_class.max_stamina:
             self.stamina += delta_stamina
@@ -89,17 +106,20 @@ class Hero(ABC):
 
 
 class Player(Hero):
-    # урон Игрока. Возвращаем урон от обычного удара
-
+    """
+    Урон Игрока. Возвращаем урон от обычного удара
+    """
     def hit(self, target: Hero) -> Optional[float]:
         return self._hit(target)
 
 
 class Enemy(Hero):
-    def hit(self, target: Hero) -> Optional[float]:        # урон Соперника
-        # если есть 10% шанс и наличие достаточного кол-ва очков выносливости на использование Соперником навыка,
-        # возвращаем урон от навыка. Если шанса и выносливости нет, возвращаем урон от обычного удара
-
+    def hit(self, target: Hero) -> Optional[float]:
+        """
+        Урон Соперника.
+        Если есть 10% шанс и наличие достаточного кол-ва очков выносливости на использование Соперником навыка,
+        возвращаем урон от навыка. Если шанса и выносливости нет, возвращаем урон от обычного удара.
+        """
         if random.randint(0, 100) < 10 and self.stamina >= self.player_class.skill.stamina and not self.used_skill:
             self.use_skill()
         return self._hit(target)
